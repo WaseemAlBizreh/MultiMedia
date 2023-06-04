@@ -1,11 +1,11 @@
 package k_means_clustering;
 
-import java.awt.Color;
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import javax.imageio.ImageIO;
 
 public class ColorQuantizationExample {
 
@@ -16,7 +16,7 @@ public class ColorQuantizationExample {
             BufferedImage inputImage = ImageIO.read(new File("images/" + imageName));
 
             // Define the number of colors for quantization
-            int k = 3;
+            int k = 16;
 
             // Perform color quantization
             List<Color> quantizedColors = KMeansColorQuantization.performColorQuantization(inputImage, k);
@@ -25,7 +25,7 @@ public class ColorQuantizationExample {
             BufferedImage outputImage = createOutputImage(inputImage, quantizedColors);
 
             // Save the output image
-            File outputFile = new File("images/k_"+ imageName);
+            File outputFile = new File("images/k_" + k + "_" + imageName);
             ImageIO.write(outputImage, "jpg", outputFile);
 
             System.out.println("Output image saved successfully.");
