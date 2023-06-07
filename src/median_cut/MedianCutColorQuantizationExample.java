@@ -16,6 +16,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import static jdk.nashorn.internal.objects.NativeMath.random;
+
 public class MedianCutColorQuantizationExample extends JFrame implements ActionListener {
     JButton button;
     JLabel label;
@@ -63,7 +65,7 @@ public class MedianCutColorQuantizationExample extends JFrame implements ActionL
                     BufferedImage outputImage = createQuantizedImage(inputImage, quantizedColors);
 
                     // Save the output image
-                    File outputFile = new File("C:/Users/Dell/Desktop/median-cut-quantized-" + k + ".jpg");
+                    File outputFile = new File("C:/Users/Dell/Desktop/median-cut-quantized-" + random(k) + ".jpg");
                     ImageIO.write(outputImage, "jpg", outputFile);
 
                     System.out.println("Output image saved successfully On Your Desktop.");
