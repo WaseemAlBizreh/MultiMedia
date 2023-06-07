@@ -11,10 +11,6 @@ import javax.swing.*;
 
 public class ColorHistogramCalculation extends ColorHistogramDisplay{
 
-    public ColorHistogramCalculation(int[] histogram) {
-        super(histogram);
-    }
-
     public static int[] calculateColorHistogram(String imagePath, int numBins) throws IOException {
         BufferedImage image = ImageIO.read(new File(imagePath));
 
@@ -42,10 +38,7 @@ public class ColorHistogramCalculation extends ColorHistogramDisplay{
         return histogram;
     }
 
-    public static void main(String[] args) {
-        String imagePath = "C:/Users/User 2004/Desktop/Color/orange-cat-median-quantized-17.jpg";
-        int numBins = 256; // Number of bins in the histogram
-
+    public void getColorHistogram(String imagePath, int numBins) {
         try {
             int[] histogram = calculateColorHistogram(imagePath, numBins);
 
@@ -56,14 +49,8 @@ public class ColorHistogramCalculation extends ColorHistogramDisplay{
 
             SwingUtilities.invokeLater(() -> new ColorHistogramDisplay(histogram));
 
-            ColorPaletteDisplay palette = new ColorPaletteDisplay();
-            //palette.main(args); for display histogram and palette
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 }

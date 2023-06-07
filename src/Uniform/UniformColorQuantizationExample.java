@@ -1,4 +1,4 @@
-package octree;
+package Uniform;
 
 import ColorHistogram.ColorHistogramCalculation;
 import ColorPalette.ColorPaletteDisplay;
@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class OctreeExample extends JFrame implements ActionListener {
+public class UniformColorQuantizationExample extends JFrame implements ActionListener {
     JButton button;
     JLabel label;
     JLabel label2;
@@ -21,8 +21,8 @@ public class OctreeExample extends JFrame implements ActionListener {
     JFileChooser fileChooser;
     File selectedFile;
 
-    public OctreeExample() {
-        setTitle("Octree Clistering");
+    public UniformColorQuantizationExample() {
+        setTitle("Uniform Color Quantization");
         setSize(300, 300);
         setLayout(new FlowLayout());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -52,29 +52,32 @@ public class OctreeExample extends JFrame implements ActionListener {
                     BufferedImage inputImage = ImageIO.read(selectedFile);
 
                     // Define the number of colors for quantization
-                    int k = 256;
+                    int k = 3;
 
                     // Perform color quantization
-                    BufferedImage outputImage = OctreeQuantization.quantizeImage(inputImage, k);
+                    BufferedImage quantizedImage = UniformColorQuantization.quantize(inputImage, k);
+
+                    // Create the output image with quantized colors
+                    ImageIO.write(quantizedImage, "jpg", new File("C:/Users/Dell/Desktop/Uniform-Quantization-" + k + ".jpg"));
 
                     // Save the output image
-                    File outputFile = new File("images/octree-quantized-" + k + ".jpg");
-                    ImageIO.write(outputImage, "jpg", outputFile);
+                    File outputFile = new File("images/Uniform-quantized-" + k + ".jpg");
+                    ImageIO.write(quantizedImage, "jpg", outputFile);
 
                     System.out.println("Output image saved successfully On Your Desktop.");
                     ImageIcon icon = new ImageIcon(inputImage);
                     label.setIcon(icon);
                     label.setText("Original Image");
 
-                    ImageIcon iconOutput = new ImageIcon(outputImage);
+                    ImageIcon iconOutput = new ImageIcon(quantizedImage);
                     label2.setIcon(iconOutput);
                     label2.setText("Quantized Image");
 
                     // Indexed Image
-                    BufferedImage indexedImage = new BufferedImage(outputImage.getWidth(), outputImage.getHeight(),
+                    BufferedImage indexedImage = new BufferedImage(quantizedImage.getWidth(), quantizedImage.getHeight(),
                             BufferedImage.TYPE_BYTE_INDEXED);
                     Graphics g = indexedImage.getGraphics();
-                    g.drawImage(outputImage, 0, 0, null);
+                    g.drawImage(quantizedImage, 0, 0, null);
                     g.dispose();
 
                     ImageIcon iconIndexed = new ImageIcon(indexedImage);
@@ -83,10 +86,10 @@ public class OctreeExample extends JFrame implements ActionListener {
 
                     ColorHistogramCalculation colorHistogramCalculation = new ColorHistogramCalculation();
 
-                    colorHistogramCalculation.getColorHistogram("images/octree-quantized-" + k + ".jpg", 256);
+                    colorHistogramCalculation.getColorHistogram("images/Uniform-quantized-" + k + ".jpg", 256);
 
                     ColorPaletteDisplay colorPaletteDisplay = new ColorPaletteDisplay();
-                    colorPaletteDisplay.getColorPalette("images/octree-quantized-" + k + ".jpg");
+                    colorPaletteDisplay.getColorPalette("images/Uniform-quantized-" + k + ".jpg");
 
 
                 } catch (IOException ex) {
@@ -98,7 +101,7 @@ public class OctreeExample extends JFrame implements ActionListener {
 
     public static void main(String[] args) {
         try {
-            OctreeExample uploader = new OctreeExample();
+            UniformColorQuantizationExample uploader = new UniformColorQuantizationExample();
             uploader.setVisible(true);
         } catch (Exception e) {
             e.printStackTrace();

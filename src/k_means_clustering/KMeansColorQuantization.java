@@ -1,5 +1,8 @@
 package k_means_clustering;
 
+import ColorHistogram.ColorHistogramCalculation;
+import ColorPalette.ColorPaletteDisplay;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -40,6 +43,8 @@ public class KMeansColorQuantization extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == button) {
             fileChooser = new JFileChooser();
+            File defaultDirectory = new File("C:/Users/Dell/Desktop");
+            fileChooser.setCurrentDirectory(defaultDirectory);
             int result = fileChooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 this.selectedFile = fileChooser.getSelectedFile();
@@ -56,10 +61,10 @@ public class KMeansColorQuantization extends JFrame implements ActionListener {
                     BufferedImage outputImage = createOutputImage(inputImage, quantizedColors);
 
                     // Save the output image
-                    File outputFile = new File("C:/Users/Dell/Desktop/k-cluster-quantized-" + k + ".jpg");
+                    File outputFile = new File("images/k-cluster-quantized-" + k + ".jpg");
                     ImageIO.write(outputImage, "jpg", outputFile);
 
-                    System.out.println("Output image saved successfully On Your Desktop.");
+                    System.out.println("Output image saved successfully In Your Images Folder.");
                     ImageIcon icon = new ImageIcon(inputImage);
                     label.setIcon(icon);
                     label.setText("Original Image");
@@ -78,6 +83,14 @@ public class KMeansColorQuantization extends JFrame implements ActionListener {
                     ImageIcon iconIndexed = new ImageIcon(indexedImage);
                     label3.setIcon(iconIndexed);
                     label3.setText("Indexed Quantized Image");
+
+                    ColorHistogramCalculation colorHistogramCalculation = new ColorHistogramCalculation();
+
+                    colorHistogramCalculation.getColorHistogram("images/k-cluster-quantized-" + k + ".jpg", 256);
+
+                    ColorPaletteDisplay colorPaletteDisplay = new ColorPaletteDisplay();
+                    colorPaletteDisplay.getColorPalette("images/k-cluster-quantized-" + k + ".jpg");
+
 
                 } catch (IOException ex) {
                     System.err.println(ex);

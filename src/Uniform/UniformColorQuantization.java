@@ -7,25 +7,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class UniformColorQuantization {
-
-    public static void main(String[] args) {
-        String imagePath = "images/orange-cat.jpg";
-        int numColors = 3;
-
-        try {
-            BufferedImage originalImage = ImageIO.read(new File(imagePath));
-            BufferedImage quantizedImage = quantize(originalImage, numColors);
-
-            // Save the quantized image
-            String outputImagePath = "images/orange-cat-uniform.jpg";
-            ImageIO.write(quantizedImage, "jpg", new File(outputImagePath));
-
-            System.out.println("Quantization complete. Quantized image saved at: " + outputImagePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static BufferedImage quantize(BufferedImage originalImage, int numColors) {
         int width = originalImage.getWidth();
         int height = originalImage.getHeight();

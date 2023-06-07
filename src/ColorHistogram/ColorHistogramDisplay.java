@@ -9,6 +9,10 @@ import javax.swing.*;
 public class ColorHistogramDisplay extends JFrame {
     private static int[] data;
 
+    public ColorHistogramDisplay() {
+
+    }
+
     public ColorHistogramDisplay(int[] data) {
         this.data = data;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,12 +41,5 @@ public class ColorHistogramDisplay extends JFrame {
             g2.setColor(Color.BLACK);
             g2.drawRect(x, y, barWidth - 2, barHeight);
         }
-    }
-
-    public static void main(String[] args) {
-
-//        int[] data = {5, 10, 8, 3, 2, 7}; data for test
-
-        SwingUtilities.invokeLater(() -> new ColorHistogramDisplay(data));
     }
 }

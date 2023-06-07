@@ -140,26 +140,4 @@ public class OctreeQuantization {
         int blueDiff = c1.getBlue() - c2.getBlue();
         return redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff;
     }
-
-    public static void main(String[] args) {
-        String inputImagePath = "images/orange-cat.jpg";
-        String outputImagePath = "images/orange-cat-octree.jpg";
-        int colorCount = 68; // Modify the value of colorCount here
-
-        try {
-            // Load the input image
-            BufferedImage inputImage = ImageIO.read(new File(inputImagePath));
-
-            // Apply color quantization using OctreeQuantization algorithm
-            BufferedImage outputImage = quantizeImage(inputImage, colorCount);
-
-            // Save the output image
-            ImageIO.write(outputImage, "jpg", new File(outputImagePath));
-
-            System.out.println("Image quantization completed successfully.");
-
-        } catch (IOException e) {
-            System.out.println("Error occurred: " + e.getMessage());
-        }
-    }
 }

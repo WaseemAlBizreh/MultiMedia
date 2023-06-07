@@ -1,5 +1,9 @@
 package median_cut;
 
+import ColorHistogram.ColorHistogramCalculation;
+import ColorHistogram.ColorHistogramDisplay;
+import ColorPalette.ColorPaletteDisplay;
+
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -15,8 +19,6 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-
-import static jdk.nashorn.internal.objects.NativeMath.random;
 
 public class MedianCutColorQuantizationExample extends JFrame implements ActionListener {
     JButton button;
@@ -49,6 +51,8 @@ public class MedianCutColorQuantizationExample extends JFrame implements ActionL
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == button) {
             fileChooser = new JFileChooser();
+            File defaultDirectory = new File("C:/Users/Dell/Desktop");
+            fileChooser.setCurrentDirectory(defaultDirectory);
             int result = fileChooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 this.selectedFile = fileChooser.getSelectedFile();
@@ -65,7 +69,7 @@ public class MedianCutColorQuantizationExample extends JFrame implements ActionL
                     BufferedImage outputImage = createQuantizedImage(inputImage, quantizedColors);
 
                     // Save the output image
-                    File outputFile = new File("C:/Users/Dell/Desktop/median-cut-quantized-" + random(k) + ".jpg");
+                    File outputFile = new File("images/median-cut-quantized-" + k + ".jpg");
                     ImageIO.write(outputImage, "jpg", outputFile);
 
                     System.out.println("Output image saved successfully On Your Desktop.");
@@ -87,6 +91,14 @@ public class MedianCutColorQuantizationExample extends JFrame implements ActionL
                     ImageIcon iconIndexed = new ImageIcon(indexedImage);
                     label3.setIcon(iconIndexed);
                     label3.setText("Indexed Quantized Image");
+
+                    ColorHistogramCalculation colorHistogramCalculation = new ColorHistogramCalculation();
+
+                    colorHistogramCalculation.getColorHistogram("images/median-cut-quantized-" + k + ".jpg", 256);
+
+                    ColorPaletteDisplay colorPaletteDisplay = new ColorPaletteDisplay();
+                    colorPaletteDisplay.getColorPalette("images/median-cut-quantized-" + k + ".jpg");
+
 
                 } catch (IOException ex) {
                     System.err.println(ex);
@@ -138,6 +150,7 @@ public class MedianCutColorQuantizationExample extends JFrame implements ActionL
     public static void main(String[] args) {
         try {
             MedianCutColorQuantizationExample uploader = new MedianCutColorQuantizationExample();
+
             uploader.setVisible(true);
         } catch (Exception e) {
             e.printStackTrace();

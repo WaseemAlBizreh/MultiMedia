@@ -74,11 +74,7 @@ public class ColorPaletteDisplay extends JFrame {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    public static void main(String[] args) {
-
-//        ColorPaletteDisplay palette = new ColorPaletteDisplay();
-        String imagePath = "C:/Users/User 2004/Desktop/Color/orange-cat-median-quantized-0.5316230734686083.jpg";
-
+    public void getColorPalette(String imagePath) {
         try {
             File file = new File(imagePath);
             BufferedImage image = ImageIO.read(file);
