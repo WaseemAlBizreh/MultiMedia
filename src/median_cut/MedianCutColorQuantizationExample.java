@@ -1,35 +1,95 @@
 package median_cut;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
-public class MedianCutColorQuantizationExample {
+public class MedianCutColorQuantizationExample extends JFrame implements ActionListener {
+    JButton button;
+    JLabel label;
+    JLabel label2;
+    JLabel label3;
+    JFileChooser fileChooser;
+    File selectedFile;
 
-    public static void main(String[] args) {
-        String inputImagePath = "images/orange-cat.jpg";
-        String outputImagePath = "images/orange-cat-medianCut.jpg";
+    public MedianCutColorQuantizationExample() {
+        setTitle("Median Cut");
+        setSize(300, 300);
+        setLayout(new FlowLayout());
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        try {
-            // Read the original image
-            BufferedImage originalImage = ImageIO.read(new File(inputImagePath));
+        label = new JLabel("No file selected");
+        button = new JButton("Select file");
+        button.addActionListener(this);
 
-            // Perform color quantization
-            List<Color> quantizedColors = MedianCutColorQuantization.quantizeImage(originalImage, 16);
+        label2 = new JLabel("");
+        label3 = new JLabel("");
 
-            // Create a new image with quantized colors
-            BufferedImage quantizedImage = createQuantizedImage(originalImage, quantizedColors);
+        add(button);
+        add(label);
+        add(label2);
+        add(label3);
+    }
 
-            // Save the quantized image
-            File outputFile = new File(outputImagePath);
-            ImageIO.write(quantizedImage, "jpg", outputFile);
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == button) {
+            fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                this.selectedFile = fileChooser.getSelectedFile();
+                try {
+                    BufferedImage inputImage = ImageIO.read(selectedFile);
 
-            System.out.println("Quantized image saved successfully.");
-        } catch (IOException e) {
-            e.printStackTrace();
+                    // Define the number of colors for quantization
+                    int k = 16;
+
+                    // Perform color quantization
+                    List<Color> quantizedColors = MedianCutColorQuantization.quantizeImage(inputImage, k);
+
+                    // Create the output image with quantized colors
+                    BufferedImage outputImage = createQuantizedImage(inputImage, quantizedColors);
+
+                    // Save the output image
+                    File outputFile = new File("C:/Users/Dell/Desktop/median-cut-quantized-" + k + ".jpg");
+                    ImageIO.write(outputImage, "jpg", outputFile);
+
+                    System.out.println("Output image saved successfully On Your Desktop.");
+                    ImageIcon icon = new ImageIcon(inputImage);
+                    label.setIcon(icon);
+                    label.setText("Original Image");
+
+                    ImageIcon iconOutput = new ImageIcon(outputImage);
+                    label2.setIcon(iconOutput);
+                    label2.setText("Quantized Image");
+
+                    // Indexed Image
+                    BufferedImage indexedImage = new BufferedImage(outputImage.getWidth(), outputImage.getHeight(),
+                            BufferedImage.TYPE_BYTE_INDEXED);
+                    Graphics g = indexedImage.getGraphics();
+                    g.drawImage(outputImage, 0, 0, null);
+                    g.dispose();
+
+                    ImageIcon iconIndexed = new ImageIcon(indexedImage);
+                    label3.setIcon(iconIndexed);
+                    label3.setText("Indexed Quantized Image");
+
+                } catch (IOException ex) {
+                    System.err.println(ex);
+                }
+            }
         }
     }
 
@@ -71,5 +131,14 @@ public class MedianCutColorQuantizationExample {
         int bDiff = color1.getBlue() - color2.getBlue();
 
         return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+    }
+
+    public static void main(String[] args) {
+        try {
+            MedianCutColorQuantizationExample uploader = new MedianCutColorQuantizationExample();
+            uploader.setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

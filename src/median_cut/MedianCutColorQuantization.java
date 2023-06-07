@@ -92,7 +92,7 @@ public class MedianCutColorQuantization {
                 cube2.minX = (minX + maxX) / 2 + 1;
             }
 
-            return new ColorCube[]{cube1, cube2};
+            return new ColorCube[] { cube1, cube2 };
         }
 
         private int findSplitIndex() {

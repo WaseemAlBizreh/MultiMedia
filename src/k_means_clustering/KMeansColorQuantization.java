@@ -2,97 +2,119 @@ package k_means_clustering;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
-import java.util.Random;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
-public class KMeansColorQuantization {
+public class KMeansColorQuantization extends JFrame implements ActionListener {
+    JButton button;
+    JLabel label;
+    JLabel label2;
+    JLabel label3;
+    JFileChooser fileChooser;
+    File selectedFile;
 
-    private static final int MAX_ITERATIONS = 100;
+    public KMeansColorQuantization() {
+        setTitle("K-means Clistering");
+        setSize(300, 300);
+        setLayout(new FlowLayout());
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-    public static List<Color> performColorQuantization(BufferedImage image, int k) {
-        // Step 1: Collect pixel colors from the image
-        List<Color> pixels = getPixelColors(image);
+        label = new JLabel("No file selected");
+        button = new JButton("Select file");
+        button.addActionListener(this);
 
-        // Step 2: Initialize centroids randomly
-        List<Color> centroids = initializeCentroids(k);
+        label2 = new JLabel("");
+        label3 = new JLabel("");
 
-        // Step 3: Run k-means clustering
-        for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-            List<List<Color>> clusters = new ArrayList<>(k);
-            for (int i = 0; i < k; i++) {
-                clusters.add(new ArrayList<>());
-            }
+        add(button);
+        add(label);
+        add(label2);
+        add(label3);
+    }
 
-            // Assign each pixel to the nearest centroid
-            for (Color pixel : pixels) {
-                int nearestCentroidIndex = getNearestCentroidIndex(pixel, centroids);
-                clusters.get(nearestCentroidIndex).add(pixel);
-            }
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == button) {
+            fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                this.selectedFile = fileChooser.getSelectedFile();
+                try {
+                    BufferedImage inputImage = ImageIO.read(selectedFile);
 
-            // Update centroids based on the assigned pixels
-            List<Color> newCentroids = new ArrayList<>();
-            for (List<Color> cluster : clusters) {
-                if (!cluster.isEmpty()) {
-                    Color centroid = calculateCentroid(cluster);
-                    newCentroids.add(centroid);
+                    // Define the number of colors for quantization
+                    int k = 16;
+
+                    // Perform color quantization
+                    List<Color> quantizedColors = KMeansClustering.performColorQuantization(inputImage, k);
+
+                    // Create the output image with quantized colors
+                    BufferedImage outputImage = createOutputImage(inputImage, quantizedColors);
+
+                    // Save the output image
+                    File outputFile = new File("C:/Users/Dell/Desktop/k-cluster-quantized-" + k + ".jpg");
+                    ImageIO.write(outputImage, "jpg", outputFile);
+
+                    System.out.println("Output image saved successfully On Your Desktop.");
+                    ImageIcon icon = new ImageIcon(inputImage);
+                    label.setIcon(icon);
+                    label.setText("Original Image");
+
+                    ImageIcon iconOutput = new ImageIcon(outputImage);
+                    label2.setIcon(iconOutput);
+                    label2.setText("Quantized Image");
+
+                    // Indexed Image
+                    BufferedImage indexedImage = new BufferedImage(outputImage.getWidth(), outputImage.getHeight(),
+                            BufferedImage.TYPE_BYTE_INDEXED);
+                    Graphics g = indexedImage.getGraphics();
+                    g.drawImage(outputImage, 0, 0, null);
+                    g.dispose();
+
+                    ImageIcon iconIndexed = new ImageIcon(indexedImage);
+                    label3.setIcon(iconIndexed);
+                    label3.setText("Indexed Quantized Image");
+
+                } catch (IOException ex) {
+                    System.err.println(ex);
                 }
             }
-
-            // Check convergence
-            if (newCentroids.equals(centroids)) {
-                break;
-            }
-
-            centroids = newCentroids;
         }
-
-        return centroids;
     }
 
-    private static List<Color> getPixelColors(BufferedImage image) {
-        List<Color> pixels = new ArrayList<>();
-        int width = image.getWidth();
-        int height = image.getHeight();
+    private static BufferedImage createOutputImage(BufferedImage inputImage, List<Color> quantizedColors) {
+        BufferedImage outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(),
+                BufferedImage.TYPE_INT_RGB);
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Color pixel = new Color(image.getRGB(x, y), true);
-                pixels.add(pixel);
+        // Replace each pixel color in the output image with the nearest quantized color
+        for (int y = 0; y < inputImage.getHeight(); y++) {
+            for (int x = 0; x < inputImage.getWidth(); x++) {
+                Color originalColor = new Color(inputImage.getRGB(x, y), true);
+                Color nearestColor = getNearestColor(originalColor, quantizedColors);
+                outputImage.setRGB(x, y, nearestColor.getRGB());
             }
         }
 
-        return pixels;
+        return outputImage;
     }
 
-    private static List<Color> initializeCentroids(int k) {
-        List<Color> centroids = new ArrayList<>();
-        Random random = new Random();
-
-        for (int i = 0; i < k; i++) {
-            int red = random.nextInt(256);
-            int green = random.nextInt(256);
-            int blue = random.nextInt(256);
-            Color centroid = new Color(red, green, blue);
-            centroids.add(centroid);
-        }
-
-        return centroids;
-    }
-
-    private static int getNearestCentroidIndex(Color pixel, List<Color> centroids) {
-        int nearestIndex = 0;
+    private static Color getNearestColor(Color color, List<Color> quantizedColors) {
         double minDistance = Double.MAX_VALUE;
+        Color nearestColor = quantizedColors.get(0);
 
-        for (int i = 0; i < centroids.size(); i++) {
-            double distance = calculateDistance(pixel, centroids.get(i));
+        for (Color quantizedColor : quantizedColors) {
+            double distance = calculateDistance(color, quantizedColor);
             if (distance < minDistance) {
                 minDistance = distance;
-                nearestIndex = i;
+                nearestColor = quantizedColor;
             }
         }
 
-        return nearestIndex;
+        return nearestColor;
     }
 
     private static double calculateDistance(Color color1, Color color2) {
@@ -103,22 +125,12 @@ public class KMeansColorQuantization {
         return Math.sqrt(redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff);
     }
 
-    private static Color calculateCentroid(List<Color> pixels) {
-        int redSum = 0;
-        int greenSum = 0;
-        int blueSum = 0;
-
-        for (Color pixel : pixels) {
-            redSum += pixel.getRed();
-            greenSum += pixel.getGreen();
-            blueSum += pixel.getBlue();
+    public static void main(String[] args) {
+        try {
+            KMeansColorQuantization uploader = new KMeansColorQuantization();
+            uploader.setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        int count = pixels.size();
-        int redAverage = redSum / count;
-        int greenAverage = greenSum / count;
-        int blueAverage = blueSum / count;
-
-        return new Color(redAverage, greenAverage, blueAverage);
     }
 }
