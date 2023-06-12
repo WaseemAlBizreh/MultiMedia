@@ -3,6 +3,7 @@ package median_cut;
 import ColorHistogram.ColorHistogramCalculation;
 import ColorHistogram.ColorHistogramDisplay;
 import ColorPalette.ColorPaletteDisplay;
+import k_means_clustering.KMeansColorQuantization;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -148,6 +149,7 @@ public class MedianCutColorQuantizationExample extends JFrame implements ActionL
     }
 
     public static void main(String[] args) {
+
         try {
             MedianCutColorQuantizationExample uploader = new MedianCutColorQuantizationExample();
 
