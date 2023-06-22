@@ -17,7 +17,6 @@ public class ImageDateSearchGUI {
     private JFrame frame;
     private JTextField imageField;
     private JTextField folderField;
-
     private JTextArea resultArea;
 
     public void run() {
@@ -131,18 +130,32 @@ public class ImageDateSearchGUI {
             FileTime inputImageDate= Files.getLastModifiedTime(Paths.get(inputImagePath));
 
             // Search for similar images by date
-            List<String> similarImages = searchSimilarImagesByDate(folderPath, inputImageDate, dateTolerance);
+            List<String> similarImagePaths = searchSimilarImagesByDate(folderPath, inputImageDate, dateTolerance);
 
             // Display the similar images
             resultArea.setText("Similar images by date:\n");
-            for (String image : similarImages) {
-                resultArea.append(image + "\n");
+
+            JPanel imagePanel = new JPanel(new GridLayout(0, 4, 5, 5)); // 4 images per row
+            for (String imagePath : similarImagePaths) {
+                // Load the similar image
+                BufferedImage similarImage = ImageIO.read(new File(folderPath, imagePath));
+
+                // Scale the image to fit in the JLabel
+                Image scaledImage = similarImage.getScaledInstance(150, -1, Image.SCALE_SMOOTH);
+
+                // Create the JLabel and add it to the image panel
+                JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+                imagePanel.add(imageLabel);
             }
+
+            // Add the image panel to a scroll pane and display it
+            JScrollPane scrollPane = new JScrollPane(imagePanel);
+            scrollPane.setPreferredSize(new Dimension(600, 400));
+            JOptionPane.showMessageDialog(frame, scrollPane, "Similar Images", JOptionPane.PLAIN_MESSAGE);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     public static List<String> searchSimilarImagesByDate(String folderPath, FileTime targetDate, long dateTolerance) {
         File folder = new File(folderPath);
         File[] files = folder.listFiles();
