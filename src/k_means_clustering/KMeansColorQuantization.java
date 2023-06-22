@@ -13,6 +13,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 public class KMeansColorQuantization extends JFrame implements ActionListener {
     JButton button;
     JLabel label;
@@ -80,6 +83,9 @@ public class KMeansColorQuantization extends JFrame implements ActionListener {
                     g.drawImage(outputImage, 0, 0, null);
                     g.dispose();
 
+                    File indexedFile = new File("images/k-cluster-quantized-indexed-" + k + ".jpg");
+                    ImageIO.write(indexedImage, "jpg", indexedFile);
+
                     ImageIcon iconIndexed = new ImageIcon(indexedImage);
                     label3.setIcon(iconIndexed);
                     label3.setText("Indexed Quantized Image");
@@ -140,6 +146,11 @@ public class KMeansColorQuantization extends JFrame implements ActionListener {
 
     public static void main(String[] args) {
         try {
+            try {
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+                e.printStackTrace();
+            }
             KMeansColorQuantization uploader = new KMeansColorQuantization();
             uploader.setVisible(true);
         } catch (Exception e) {

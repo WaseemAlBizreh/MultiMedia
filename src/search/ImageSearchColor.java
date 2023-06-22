@@ -65,6 +65,7 @@ public class ImageSearchColor {
                     try {
                         BufferedImage image = ImageIO.read(selectedFile);
                         selectedColor = null;
+                        // searchAndDisplaySimilarImages(image);
                         openColorPicker(image);
                     } catch (IOException ex) {
                         ex.printStackTrace();
@@ -97,11 +98,11 @@ public class ImageSearchColor {
 
     private void searchAndDisplaySimilarImages(BufferedImage inputImage) {
         // Clear existing images from the panel
-        imagePanel.removeAll();
+        // imagePanel.removeAll();
 
         try {
             // Specify the folder to search for images
-            String folderPath = "C:\\Users\\User 2004\\Desktop\\Color";
+            String folderPath = "images/";
 
             // Iterate over the images in the folder
             File folder = new File(folderPath);

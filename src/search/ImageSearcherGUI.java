@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileSystemView;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class ImageSearcherGUI {
     private JLabel resultLabel;
 
     private File selectedImageFile;
+    private File[] selectedFolders;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -50,17 +52,44 @@ public class ImageSearcherGUI {
 
         // Create the select button
         JButton selectButton = new JButton("Select Image");
+        selectButton.setPreferredSize(new Dimension(200, 50));
         selectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
+                FileSystemView fileSystemView = FileSystemView.getFileSystemView();
+                File desktopDir = fileSystemView.getHomeDirectory();
+
+                // Set the current directory of the file chooser to the desktop directory
+                fileChooser.setCurrentDirectory(desktopDir);
                 int returnValue = fileChooser.showOpenDialog(frame);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     selectedImageFile = fileChooser.getSelectedFile();
+                }
+            }
+        });
+
+        JButton folderSelection = new JButton("Select Folders");
+        folderSelection.setPreferredSize(new Dimension(200, 50));
+        folderSelection.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                fileChooser.setMultiSelectionEnabled(true);
+                File defaultDir = new File("C:/Users/DELL/IdeaProjects/MultiMedia");
+                fileChooser.setCurrentDirectory(defaultDir);
+                int returnValue = fileChooser.showOpenDialog(frame);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    selectedFolders = fileChooser.getSelectedFiles();
                     searchAndDisplaySimilarImages();
                 }
             }
         });
-        mainPanel.add(selectButton, BorderLayout.NORTH);
+
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        buttonPanel.add(selectButton);
+        buttonPanel.add(folderSelection);
+
+        mainPanel.add(buttonPanel, BorderLayout.NORTH);
 
         // Set the main panel as the content pane
         frame.getContentPane().add(mainPanel);
@@ -80,61 +109,67 @@ public class ImageSearcherGUI {
             int[] inputHistogram = calculateHistogram(inputImage);
 
             // Specify the folder to search for similar images
-            String folderPath = "C:\\Users\\User 2004\\Desktop\\Color";
+            String folderPath = "";
+            for(int i = 0; i < selectedFolders.length; i++) {
+                folderPath = selectedFolders[i].getAbsolutePath();
 
-            // Create a list to store the similar images
-            List<SimilarImage> similarImages = new ArrayList<>();
 
-            // Iterate over the images in the folder
-            File folder = new File(folderPath);
-            File[] imageFiles = folder.listFiles();
+                // Create a list to store the similar images
+                List<SimilarImage> similarImages = new ArrayList<>();
 
-            for (File file : imageFiles) {
-                if (file.isFile()) {
-                    // Load the image from the file
-                    BufferedImage image = ImageIO.read(file);
+                // Iterate over the images in the folder
+                File folder = new File(folderPath);
+                File[] imageFiles = folder.listFiles();
 
-                    // Calculate the histogram for the current image
-                    int[] histogram = calculateHistogram(image);
+                for (File file : imageFiles) {
+                    if (file.isFile()) {
+                        // Load the image from the file
+                        BufferedImage image = ImageIO.read(file);
 
-                    // Compare the histograms using histogram intersection
-                    double intersectionScore = compareHistogramsIntersection(inputHistogram, histogram);
+                        // Calculate the histogram for the current image
+                        System.out.println(file.getName());
+                        int[] histogram = calculateHistogram(image);
 
-                    // Add the image and its similarity score to the list if similarity score is above threshold
-                    double similarityThreshold = 0.5; //change between 0 and 1
+                        // Compare the histograms using histogram intersection
+                        double intersectionScore = compareHistogramsIntersection(inputHistogram, histogram, file);
 
-                    if (intersectionScore >= similarityThreshold) {
-                        similarImages.add(new SimilarImage(file, intersectionScore));
+                        // Add the image and its similarity score to the list if similarity score is above threshold
+                        double similarityThreshold = 0.4; //change between 0 and 1
+
+                        if (intersectionScore >= similarityThreshold) {
+                            // System.out.println(file.getName());
+                            similarImages.add(new SimilarImage(file, intersectionScore));
+                        }
                     }
                 }
+
+                boolean similarImagesFound = false;
+
+                // Display the similar images
+                for (SimilarImage similarImage : similarImages) {
+                    // Load the image from the file
+                    BufferedImage image = ImageIO.read(similarImage.file);
+
+                    // Create the thumbnail image
+                    Image thumbnail = image.getScaledInstance(THUMBNAIL_SIZE, THUMBNAIL_SIZE, Image.SCALE_SMOOTH);
+
+                    // Create the image label
+                    JLabel imageLabel = new JLabel(new ImageIcon(thumbnail));
+                    imagePanel.add(imageLabel);
+
+                    similarImagesFound = true;
+                }
+
+                if (similarImagesFound) {
+                    resultLabel.setText("Similar images found.");
+                } else {
+                    resultLabel.setText("No similar images found.");
+                }
+
+                // Update the UI
+                imagePanel.revalidate();
+                imagePanel.repaint();
             }
-
-            boolean similarImagesFound = false;
-
-            // Display the similar images
-            for (SimilarImage similarImage : similarImages) {
-                // Load the image from the file
-                BufferedImage image = ImageIO.read(similarImage.file);
-
-                // Create the thumbnail image
-                Image thumbnail = image.getScaledInstance(THUMBNAIL_SIZE, THUMBNAIL_SIZE, Image.SCALE_SMOOTH);
-
-                // Create the image label
-                JLabel imageLabel = new JLabel(new ImageIcon(thumbnail));
-                imagePanel.add(imageLabel);
-
-                similarImagesFound = true;
-            }
-
-            if (similarImagesFound) {
-                resultLabel.setText("Similar images found.");
-            } else {
-                resultLabel.setText("No similar images found.");
-            }
-
-            // Update the UI
-            imagePanel.revalidate();
-            imagePanel.repaint();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -164,7 +199,7 @@ public class ImageSearcherGUI {
         return histogram;
     }
 
-    private double compareHistogramsIntersection(int[] histogram1, int[] histogram2) {
+    private double compareHistogramsIntersection(int[] histogram1, int[] histogram2, File file) {
         // Ensure that the histograms have the same length
         if (histogram1.length != histogram2.length) {
             throw new IllegalArgumentException("Histograms must have the same length.");
@@ -187,7 +222,7 @@ public class ImageSearcherGUI {
         // Calculate the similarity score using histogram intersection formula
         double intersectionScore = (double) sumMin / sumMax;
 
-        System.out.println(intersectionScore);
+        System.out.println(file.getName() + " Intersection Score: " + intersectionScore);
         return intersectionScore;
     }
 

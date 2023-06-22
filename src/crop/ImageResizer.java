@@ -46,6 +46,7 @@ public class ImageResizer {
         // Add the panel and image label to the frame
         frame.getContentPane().add(panel, BorderLayout.NORTH);
         frame.getContentPane().add(imageLabel, BorderLayout.CENTER);
+        frame.setSize(500, 500);
 
         // Configure the frame
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -97,7 +98,7 @@ public class ImageResizer {
             BufferedImage resizedImage = resizeImage(originalImage, width, height);
             imageLabel.setIcon(new ImageIcon(resizedImage));
             frame.pack();
-            ImageIO.write(resizedImage, "jpg", new File("C:\\Users\\User\\Pictures\\resized_image.jpg"));
+            // ImageIO.write(resizedImage, "jpg", new File("C:\\Users\\User\\Pictures\\resized_image.jpg"));
         }
         catch (Exception e)
         {
