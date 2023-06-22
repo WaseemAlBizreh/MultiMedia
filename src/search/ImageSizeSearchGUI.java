@@ -1,8 +1,6 @@
 package search;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -10,16 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ImageSizeSearchGUI {
@@ -125,23 +114,40 @@ public class ImageSizeSearchGUI {
         Dimension inputSize = new Dimension(inputImage.getWidth(), inputImage.getHeight());
 
         // Search for similar images in size
-        List<String> similarImages = searchSimilarImagesBySize(selectedFolder.getPath(), inputSize);
+        List<File> similarImageFiles = searchSimilarImagesBySize(selectedFolder.getPath(), inputSize);
 
         // Display the similar images
-        if (similarImages.isEmpty()) {
+        if (similarImageFiles.isEmpty()) {
             resultTextArea.setText("No similar images found.");
         } else {
-            resultTextArea.setText("Similar images in size:\n");
-            for (String image : similarImages) {
-                resultTextArea.append(image + "\n");
+            resultPanel.removeAll();
+            resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
+            for (File file : similarImageFiles) {
+                try {
+                    // Load the image
+                    BufferedImage image = ImageIO.read(file);
+
+                    // Create the thumbnail image
+                    Image thumbnail = image.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+
+                    // Create the image label
+                    JLabel imageLabel = new JLabel(new ImageIcon(thumbnail));
+
+                    // Add the image label to the result panel
+                    resultPanel.add(imageLabel);
+                } catch (IOException e) {
+                    // Handle the exception if image reading fails
+                    System.out.println("Error reading image: " + file.getName());
+                }
             }
+            resultPanel.revalidate();
+            resultPanel.repaint();
         }
     }
-
-    public static List<String> searchSimilarImagesBySize(String folderPath, Dimension targetSize) {
+    public static List<File> searchSimilarImagesBySize(String folderPath, Dimension targetSize) {
         File folder = new File(folderPath);
         File[] files = folder.listFiles();
-        List<String> similarImages = new ArrayList<>();
+        List<File> similarImages = new ArrayList<>();
 
         if (files != null) {
             for (File file : files) {
@@ -154,7 +160,7 @@ public class ImageSizeSearchGUI {
 
                     // Compare the sizes
                     if (imageSize.width == targetSize.width && imageSize.height == targetSize.height) {
-                        similarImages.add(file.getName());
+                        similarImages.add(file);
                     }
                 } catch (IOException e) {
                     // Handle the exception if image reading fails
