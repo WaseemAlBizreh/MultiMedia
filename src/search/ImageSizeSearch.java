@@ -6,9 +6,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
+import javax.swing.*;
 
 public class ImageSizeSearch {
+    private JFrame frame;
+    private JPanel imagePanel;
+    private JLabel resultLabel;
+
+    private File selectedImageFile;
+
     public static void main(String[] args) {
+
         String inputImagePath = "images/image4.jpg";
         String folderPath = "images/";
 
