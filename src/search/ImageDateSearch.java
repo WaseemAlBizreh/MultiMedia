@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 public class ImageDateSearch {
     public static void main(String[] args) {
         String inputImagePath = "C:/Users/USER/Pictures/background/fence_park_trees_road_nature_autumn_foliage_1920x1280.jpg";
-        File[] folderPath = {new File("C:/Users/USER/Pictures/background/")};
+        String folderPath = "C:/Users/USER/Pictures/background/";
 //        long dateTolerance = 4 * 60 * 1000; // Date tolerance in min (4 min)
         long dateTolerance = 60 * 60 * 1000; // Date tolerance in hour (1 hours)
 //        long dateTolerance = 23 * 60 * 60 * 1000; // Date tolerance in milliseconds (23 hours)
@@ -39,29 +39,26 @@ public class ImageDateSearch {
         }
     }
 
-    public static List<String> searchSimilarImagesByDate(File[] folders, FileTime targetDate, long dateTolerance) {
+    public static List<String> searchSimilarImagesByDate(String folderPath, FileTime targetDate, long dateTolerance) {
+        File folder = new File(folderPath);
+        File[] files = folder.listFiles();
         List<String> similarImages = new ArrayList<>();
 
-        if (folders != null) {
-            for (File folder : folders) {
-                File[] files = folder.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        try {
-                            // Get the creation or modification date of the image file
-                            BasicFileAttributes attributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-                            FileTime imageDate = attributes.lastModifiedTime();
+        if (files != null) {
+            for (File file : files) {
+                try {
+                    // Get the creation or modification date of the image file
+                    BasicFileAttributes attributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+                    FileTime imageDate = attributes.lastModifiedTime();
 
-                            // Compare the dates within the tolerance
-                            long dateDifference = Math.abs(imageDate.toMillis() - targetDate.toMillis());
-                            if (dateDifference <= dateTolerance) {
-                                similarImages.add(file.getName());
-                            }
-                        } catch (IOException e) {
-                            // Handle the exception if file attributes reading fails
-                            System.out.println("Error reading file attributes: " + file.getName());
-                        }
+                    // Compare the dates within the tolerance
+                    long dateDifference = Math.abs(imageDate.toMillis() - targetDate.toMillis());
+                    if (dateDifference <= dateTolerance) {
+                        similarImages.add(file.getName());
                     }
+                } catch (IOException e) {
+                    // Handle the exception if file attributes reading fails
+                    System.out.println("Error reading file attributes: " + file.getName());
                 }
             }
         }

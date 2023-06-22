@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 public class ImageSizeSearch {
     public static void main(String[] args) {
         String inputImagePath = "images/image4.jpg";
-        File[] folderPath = {new File("images/")};
+        String folderPath = "images/";
 
         try {
             // Load the input image
@@ -32,30 +32,27 @@ public class ImageSizeSearch {
         }
     }
 
-    public static List<String> searchSimilarImagesBySize(File[] folders, Dimension targetSize) {
+    public static List<String> searchSimilarImagesBySize(String folderPath, Dimension targetSize) {
+        File folder = new File(folderPath);
+        File[] files = folder.listFiles();
         List<String> similarImages = new ArrayList<>();
 
-        if (folders != null) {
-            for (File folder : folders) {
-                File[] files = folder.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        try {
-                            // Load the image
-                            BufferedImage image = ImageIO.read(file);
+        if (files != null) {
+            for (File file : files) {
+                try {
+                    // Load the image
+                    BufferedImage image = ImageIO.read(file);
 
-                            // Get the size of the image
-                            Dimension imageSize = new Dimension(image.getWidth(), image.getHeight());
+                    // Get the size of the image
+                    Dimension imageSize = new Dimension(image.getWidth(), image.getHeight());
 
-                            // Compare the sizes
-                            if (imageSize.width == targetSize.width && imageSize.height == targetSize.height) {
-                                similarImages.add(file.getName());
-                            }
-                        } catch (IOException e) {
-                            // Handle the exception if image reading fails
-                            System.out.println("Error reading image: " + file.getName());
-                        }
+                    // Compare the sizes
+                    if (imageSize.width == targetSize.width && imageSize.height == targetSize.height) {
+                        similarImages.add(file.getName());
                     }
+                } catch (IOException e) {
+                    // Handle the exception if image reading fails
+                    System.out.println("Error reading image: " + file.getName());
                 }
             }
         }
